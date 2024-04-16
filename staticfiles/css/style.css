@@ -1,0 +1,162 @@
+*{
+    font-family: verdana;
+}
+
+.tab-container {
+    /* margin-top: 20px; */
+    align-items: center;
+  }
+  
+  .tab-buttons {
+    display: flex;
+    /* justify-content: space-between; */
+    /* margin-bottom: 20px; */
+  }
+  
+  .tab-btn {
+    /* background-color: transparent; */
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    position: relative;
+    background-color: transparent;
+  }
+ 
+  
+  .tab-btn::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: transparent;
+    transition: background-color 0.3s ease;
+  }
+  
+  .tab-btn.active::after,
+  .tab-btn:hover::after {
+    background-color: #ec522d; /* Green color */
+  }
+
+  .cards {
+    border: 2px solid #c9c0c0;
+    border-radius: 10px;
+    padding: 1%;
+    box-shadow: 6px 6px 18px;
+}
+
+footer{
+    border-top: 2px solid grey;
+    position: fixed;
+    bottom: 0%;
+    width: 100%;
+    padding: 0.6rem;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    background-color: white;
+}
+
+.alert-types.col-md-3.p-3 {
+    background-color: #e5e0e0;
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center; */
+    align-items: center;
+    border-radius: 20px;
+    box-shadow: 5px 6px 14px;
+}
+
+.bargraph {
+    width: 26rem;
+    height: 15rem;
+    /* box-shadow: 0px 0px 10px 4px; */
+    /* border-radius: 5px; */
+}
+
+.pie-chart {
+    width: 25rem;
+    height: 25rem;
+}
+.graphs-section{
+    /* display: flex;
+    flex-wrap: wrap;
+    align-items: center; */
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 1rem;
+    align-items: center;
+
+}
+
+img.logo {
+    width: 30%;
+}
+
+
+#reports-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+#reports-table th,
+#reports-table td {
+    padding: 12px 15px;
+    border: none;
+}
+
+#reports-table th {
+    background-color: #ec522d;
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+#reports-table tbody tr {
+    background-color: #f8f9fa;
+    transition: background-color 0.3s ease;
+}
+
+#reports-table tbody tr:nth-child(even) {
+    background-color: #e9ecef;
+}
+
+#reports-table tbody tr:hover {
+    background-color: #e2e6ea;
+}
+.image-preview {
+    max-width: 100px; /* Adjust image size as needed */
+    cursor: pointer;
+}
+
+.image-preview-icon {
+    cursor: pointer;
+}
+
+
+/* Adjust the size of the image preview */
+#imageModal .modal-body {
+    text-align: center;
+}
+
+/* Adjust the size of the modal */
+.modal-dialog {
+    max-width: 90%; /* Set the maximum width of the modal */
+    margin: 1.75rem auto; /* Center the modal vertically */
+}
+
+/* Adjust the size of the image inside the modal */
+#modalImage {
+    max-width: 100%; /* Set the maximum width of the image */
+    max-height: 80vh; /* Set the maximum height of the image */
+    display: block; /* Ensure the image is displayed as a block element */
+    margin: 0 auto; /* Center the image horizontally */
+}
+
+/* table#reports-table {
+    width: 90%;
+} */

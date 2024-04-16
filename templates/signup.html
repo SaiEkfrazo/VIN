@@ -1,0 +1,47 @@
+{% extends 'home.html' %}
+{% load static%}
+{% block content %}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header text-white" style="background-color: #ec522d;">
+                    <h3 class="mb-0">Sign Up</h3>
+                </div>
+                <div class="card-body">
+                    <form id="signup-form">
+                        <div class="form-group">
+                            <label for="first_name" class="form-label fw-bold">First Name</label>
+                            <input type="text" class="form-control" id="first_name" required>
+                            <small id="first_name_error" class="text-danger"></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name" class="form-label fw-bold">Last Name</label>
+                            <input type="text" class="form-control" id="last_name" required>
+                            <small id="last_name_error" class="text-danger"></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="form-label fw-bold">Email</label>
+                            <input type="email" class="form-control" id="email" required>
+                            <small id="email_error" class="text-danger"></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone_number" class="form-label fw-bold">Phone Number</label>
+                            <input type="text" class="form-control" id="phone_number" required>
+                            <small id="phone_number_error" class="text-danger"></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="password" class="form-label fw-bold">Password</label>
+                            <input type="password" class="form-control" id="password" required>
+                            <small id="password_error" class="text-danger"></small>
+                        </div>
+                        <button type="button" class="btn btn-block mt-3 text-light" style="background-color: #ec522d;" onclick="signup()">Sign Up</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

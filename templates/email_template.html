@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Report Submitted</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .details {
+            margin-bottom: 20px;
+        }
+        .details p {
+            margin-bottom: 10px;
+        }
+        .image {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .image img {
+            max-width: 100%;
+            height: auto;
+        }
+        .footer {
+            text-align: center;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>New Report Submitted</h1>
+        <div class="details">
+            <p><strong>Alert Name:</strong> {{ alert_name }}</p>
+            <p><strong>Defect Name:</strong> {{ defect_name }}</p>
+            <p><strong>Department Name:</strong> {{ department_name }}</p>
+            <p><strong>Recorded Date Time:</strong> {{ recorded_date_time }}</p>
+        </div>
+        <div class="image">
+            <a href="{{ base_url }}{{ image_link }}" target="_blank"><button>Image</button></a>
+        </div>
+        <div class="footer">
+            <p>This email was sent automatically. Please do not reply.</p>
+        </div>
+    </div>
+</body>
+</html>

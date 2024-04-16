@@ -1,0 +1,158 @@
+{% extends 'home.html' %}
+{% load static%}
+{% block content %}
+
+<!-- this is the navbar  -->
+{% include 'navbar.html' %}
+
+<!-- this is the filters  -->
+{% include 'filters.html' %}
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="reports-table" class="table table-striped table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Alert</th>
+                            <th>Defect</th>
+                            <th>Machine</th>
+                            <th>Department</th>
+                            <th>Recorded Date Time</th>
+                            <th>Image</th> <!-- New column for actions -->
+                        </tr>
+                    </thead>
+                    <tbody id="reports-table-body">
+                        <!-- Table rows will be dynamically added here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Modal for displaying the image -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" src="" alt="No Image Available">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // fetch(`${baseUrl}/reports/`)
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         const reportsTableBody = document.getElementById('reports-table-body');
+
+    //         // Iterate over each report object and create a table row
+    //         data.forEach(report => {
+    //             const row = document.createElement('tr');
+    //             row.innerHTML = `
+    //                 <td>${report.id}</td>
+    //                 <td>${report.alert_name?report.alert_name:"N/A"}</td>
+    //                 <td>${report.defect_name?report.defect_name:"N/A"}</td>
+    //                 <td>${report.machine_name?report.machine_name:"N/A"}</td>
+    //                 <td>${report.department_name ? report.department_name: "N/A"}</td>
+    //                 <td>${report.recorded_date_time ? report.recorded_date_time : 'N/A'}</td> 
+    //                 <td><i class="bi bi-eye-fill image-preview-icon" data-bs-toggle="modal" data-bs-target="#imageModal" data-image="${report.image_b64}"></i></td>
+    //             `;
+    //             reportsTableBody.appendChild(row);
+    //         });
+
+    //         // Add click event listener to the image preview icons
+    //         const imagePreviewIcons = document.querySelectorAll('.image-preview-icon');
+    //         imagePreviewIcons.forEach(icon => {
+    //             icon.addEventListener('click', function() {
+    //                 const imageUrl = this.getAttribute('data-image');
+    //                 document.getElementById('modalImage').src = imageUrl;
+    //             });
+    //         });
+    //     })
+    //     .catch(error => console.error('Error fetching data:', error));
+
+    document.addEventListener("DOMContentLoaded", function() {
+    // Function to fetch and display data
+    function fetchAndDisplayData() {
+        const selectedMachine = document.getElementById('selectMachine').value;
+        const selectedDepartment = document.getElementById('selectDepartment').value;
+        const fromDate = document.getElementById('fromDate').value;
+        const toDate = document.getElementById('toDate').value;
+
+        // Construct the URL with query parameters
+        let apiUrl = `${baseUrl}/reports/?`;
+        if (selectedMachine) {
+            apiUrl += `machine=${selectedMachine}&`;
+        }
+        if (selectedDepartment) {
+            apiUrl += `department=${selectedDepartment}&`;
+        }
+        if (fromDate) {
+            apiUrl += `from_date=${fromDate}&`;
+        }
+        if (toDate) {
+            apiUrl += `to_date=${toDate}&`;
+        }
+
+        // Remove trailing '&' if present
+        if (apiUrl.endsWith('&')) {
+            apiUrl = apiUrl.slice(0, -1);
+        }
+
+        // Fetch data based on filters
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const reportsTableBody = document.getElementById('reports-table-body');
+                reportsTableBody.innerHTML = ''; // Clear existing rows
+
+                // Iterate over each report object and create a table row
+                data.forEach(report => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${report.id}</td>
+                        <td>${report.alert_name ? report.alert_name : "N/A"}</td>
+                        <td>${report.defect_name ? report.defect_name : "N/A"}</td>
+                        <td>${report.machine_name ? report.machine_name : "N/A"}</td>
+                        <td>${report.department_name ? report.department_name : "N/A"}</td>
+                        <td>${report.recorded_date_time ? report.recorded_date_time : 'N/A'}</td> 
+                        <td>
+                            <i class="bi bi-eye-fill image-preview-icon" data-bs-toggle="modal" data-bs-target="#imageModal" data-image="${report.image_b64}" style="cursor: pointer;"></i>
+                        </td>
+                    `;
+                    reportsTableBody.appendChild(row);
+                });
+
+                // Add event listeners to the image preview icons
+                const imagePreviewIcons = document.querySelectorAll('.image-preview-icon');
+                imagePreviewIcons.forEach(icon => {
+                    icon.addEventListener('click', function() {
+                        const imageUrl = this.getAttribute('data-image');
+                        document.getElementById('modalImage').src = imageUrl;
+                    });
+                });
+            })
+            .catch(error => console.error('Error fetching filtered data:', error));
+    }
+
+    // Fetch and display data when the page loads
+    fetchAndDisplayData();
+
+    // Add event listener to the filter button
+    const filterButton = document.getElementById('filterButton');
+    filterButton.addEventListener('click', fetchAndDisplayData);
+});
+
+
+
+</script>
+{% endblock %}

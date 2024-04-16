@@ -1,0 +1,223 @@
+{% extends 'home.html' %}
+{% load static%}
+{% block content %}
+
+<!-- this is the navbar  -->
+{% include 'navbar.html' %}
+
+<!-- this is the filters  -->
+{% include 'filters.html' %}
+
+<!-- cards section begin  -->
+<div class="d-flex justify-content-evenly m-3 ">
+    <div class="cards d-flex justify-content-between align-items-center col-md-3">
+        <div class="inner-card">
+            <h4>Machines</h4>
+            <h5> <span class="text-success">17/</span>17</h5>
+        </div>
+        <div class="inner-card">
+            <h1><i class="bi bi-camera-video-fill"></i></h1>
+        </div>
+    </div>
+    <div class="cards d-flex justify-content-between align-items-center col-md-3">
+        <div class="inner-card">
+            <h4>Defects</h4>
+            <h5 class="text-success">2</h5>
+        </div>
+        <div class="inner-card">
+            <h1><i class="bi bi-bug-fill"></i></h1>
+        </div>
+    </div>
+    <div class="cards d-flex justify-content-between align-items-center col-md-3">
+        <div class="inner-card">
+            <h4>Alerts</h4>
+            <h5 class="text-success">2001</h5>
+        </div>
+        <div class="inner-card">
+            <h1><i class="bi bi-exclamation-circle-fill"></i></h1>
+        </div>
+    </div>
+</div>
+
+<!-- cards section end  -->
+
+<!-- graphs section start  -->
+
+<section class="graphs d-flex m-5">
+    <div class="alert-types col-md-3 p-3 ms-2" style="max-height: 30rem; overflow-y: auto;">
+        <div class="cards d-flex justify-content-between align-items-center shadow-none col-md-9 mt-2">
+            <div class="inner-card ms-1">
+                <h5>Horizontal Shift</h5>
+                <h6 class="text-success">1501 <span style="color: black;"> Alerts</span></h6>
+            </div>
+        </div>
+        <div class="cards d-flex justify-content-between align-items-center shadow-none col-md-9 mt-2">
+            <div class="inner-card ms-1">
+                <h5>Vertical Shift</h5>
+                <h6 class="text-success">1000 <span style="color: black;">Alerts</span></h6>
+            </div>
+        </div>
+    </div>
+    
+
+    <div class=" ms-4 col-md-9 graphs-section">
+        <div class="bargraph" >
+            <canvas id="defectsChart"></canvas>
+
+        </div>
+        <div class="pie-chart">
+            <canvas id="defectsPieChart"></canvas>
+
+        </div>
+
+        <div class="line-graph">
+            <!-- Line graph canvas -->
+            <canvas id="defectsLineChart"></canvas>
+        </div>
+    </div>
+
+</section>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- graphs section end  -->
+
+<!-- footer section begin  -->
+<footer>
+    <small>Copyright @2024 Designed by AIVolved All rights reserved.</small>
+</footer>
+<!-- footer section end  -->
+
+<script>
+    // Sample data for the bar graph
+    const defectData = {
+        labels: ['Mar 21', 'Mar 22', 'Mar 23', 'Mar 24', 'Mar 25', 'Mar 26', 'Mar 27'],
+        datasets: [
+            {
+                label: 'Horizontal Shift',
+                data: [321, 215, 405, 100, 287, 150, 23],
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                // borderWidth: 1
+            },
+            {
+                label: 'Vertical Shift',
+                data: [150,200,100,180,120,150,200],
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }
+        ]
+    };
+
+    // Configuration for the stacked bar graph
+    const config = {
+        type: 'bar',
+        data: defectData,
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    stacked: true
+                },
+                x: {
+                    stacked: true
+                }
+            }
+        }
+    };
+
+    // Create the stacked bar graph
+    const defectsChart = new Chart(
+        document.getElementById('defectsChart'),
+        config
+    );
+
+
+
+    // Sample data for the pie chart
+    const defectsPieData = {
+        labels: ['Horizontal Shift', 'Vertical Shift'],
+        datasets: [
+            {
+                data: [1501, 1000],
+                backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(54, 162, 235, 0.5)'],
+                borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                borderWidth: 1
+            }
+        ]
+    };
+
+    // Configuration for the pie chart
+    const pieConfig = {
+        type: 'pie',
+        data: defectsPieData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                title: {
+                    display: true,
+                    text: 'Defect Types'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            let label = context.label || '';
+                            let value = context.parsed;
+                            let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            let percentage = ((value / total) * 100).toFixed(2) + '%';
+                            return label + ': ' + value + ' (' + percentage + ')';
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    // Create the pie chart
+    const defectsPieChart = new Chart(
+        document.getElementById('defectsPieChart'),
+        pieConfig
+    );
+
+    const lineGraphData = {
+        labels: ['Mar 21', 'Mar 22', 'Mar 23', 'Mar 24', 'Mar 25', 'Mar 26', 'Mar 27'],
+        datasets: [
+            {
+                label: 'Horizontal Shift',
+                data: [321, 215, 405, 100, 287, 150, 23],
+                fill: false,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                tension: 0.1
+            },
+            {
+                label: 'Vertical Shift',
+                data: [150,200,100,180,120,150,200],
+                fill: false,
+                borderColor: 'rgba(255, 99, 132, 1)',
+                tension: 0.1
+            }
+        ]
+    };
+
+    // Configuration for the line graph
+    const lineGraphConfig = {
+        type: 'line',
+        data: lineGraphData,
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    };
+
+    // Create the line graph
+    const lineGraph = new Chart(
+        document.getElementById('defectsLineChart'),
+        lineGraphConfig
+    );
+</script>
+{% endblock %}

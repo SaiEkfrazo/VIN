@@ -1,0 +1,57 @@
+{% extends 'home.html' %}
+{% load static%}
+{% block content %}
+
+<nav class="navbar navbar-light"
+    style="border-top-left-radius: 1rem; border-top-right-radius: 0.8rem;background-color: #ec522d;">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold ms-5 text-light" style="font-family: verdana;"> <img src="{% static 'images/logo_black_white.png' %}" class="logo" alt="logo">AIVolved</a>
+        <div class="d-flex align-items-center">
+            <h1><i class="bi bi-house-fill text-light me-5"></i></h1>
+            <h1><i class="bi bi-person-circle text-light me-4"></i></h1>
+        </div>
+    </div>
+</nav>
+
+<div class="tab-container  d-flex justify-content-between">
+    <div class="tab-buttons ms-4">
+        <div class="tab-btn d-flex justify-content-center align-items-center">
+            <h3> <i class="bi bi-bar-chart-line-fill"></i></h3>
+            <a href="{% url 'dashboard' %}">
+                <button class="border-0 bg-transparent">Dashboard</button>
+            </a>
+        </div>
+
+        <div class="tab-btn d-flex justify-content-center align-items-center">
+            <h3> <i class="bi bi-stack"></i></h3>
+            <a href="{% url 'report' %}">
+            <button class="border-0 bg-transparent">Report</button>
+            </a>
+        </div>
+
+        <div class="tab-btn d-flex justify-content-center align-items-center">
+            <h3> <i class="bi bi-laptop"></i></h3>
+            <button class="border-0 bg-transparent">AI Smart View</button>
+        </div>
+    </div>
+    <h5 id="timedisplay" class="me-5">
+        
+    </h5>
+</div>
+
+<script>
+    function updateTime() {
+        var now = new Date();
+        var dateTimeString = now.toLocaleString(); // Format the date and time as a string
+        document.getElementById('timedisplay').textContent = dateTimeString; // Update the content of the timedisplay div
+    }
+
+    // Call updateTime function initially to display the current date and time
+    updateTime();
+    // Update the date and time every second
+    setInterval(updateTime, 1000);
+
+</script>
+
+
+{% endblock %}

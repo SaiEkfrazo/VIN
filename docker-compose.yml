@@ -1,0 +1,206 @@
+version: '3'
+
+services:
+  django1:
+    build: .
+    ports:
+      - "8001:8000"  # Different port for each Django instance
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - ai_env=1
+      - DATABASE_ENGINE=django.db.backends.mysql
+      - DATABASE_NAME=vin  
+      - DATABASE_USER=saitreddy  
+      - DATABASE_PASSWORD=sai  
+      - DATABASE_HOST=db
+      - DATABASE_PORT=3306
+    volumes:
+      - media_volume:/app/media/
+
+  django2:
+    build: .
+    ports:
+      - "8002:8000"  # Different port for each Django instance
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - ai_env=1
+      - DATABASE_ENGINE=django.db.backends.mysql
+      - DATABASE_NAME=vin  
+      - DATABASE_USER=saitreddy  
+      - DATABASE_PASSWORD=sai  
+      - DATABASE_HOST=db
+      - DATABASE_PORT=3306
+    volumes:
+      - media_volume:/app/media/
+
+  django3:
+    build: .
+    ports:
+      - "8003:8000"  # Different port for each Django instance
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - ai_env=1
+      - DATABASE_ENGINE=django.db.backends.mysql
+      - DATABASE_NAME=vin  
+      - DATABASE_USER=saitreddy  
+      - DATABASE_PASSWORD=sai  
+      - DATABASE_HOST=db
+      - DATABASE_PORT=3306
+    volumes:
+      - media_volume:/app/media/
+
+  django4:
+    build: .
+    ports:
+      - "8004:8000"  # Different port for each Django instance
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - ai_env=1
+      - DATABASE_ENGINE=django.db.backends.mysql
+      - DATABASE_NAME=vin  
+      - DATABASE_USER=saitreddy  
+      - DATABASE_PASSWORD=sai  
+      - DATABASE_HOST=db
+      - DATABASE_PORT=3306
+    volumes:
+      - media_volume:/app/media/
+
+  django5:
+    build: .
+    ports:
+      - "8005:8000"  # Different port for each Django instance
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - ai_env=1
+      - DATABASE_ENGINE=django.db.backends.mysql
+      - DATABASE_NAME=vin  
+      - DATABASE_USER=saitreddy  
+      - DATABASE_PASSWORD=sai  
+      - DATABASE_HOST=db
+      - DATABASE_PORT=3306
+    volumes:
+      - media_volume:/app/media/
+
+  django6:
+    build: .
+    ports:
+      - "8006:8000"  # Different port for each Django instance
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - ai_env=1
+      - DATABASE_ENGINE=django.db.backends.mysql
+      - DATABASE_NAME=vin  
+      - DATABASE_USER=saitreddy  
+      - DATABASE_PASSWORD=sai  
+      - DATABASE_HOST=db  
+      - DATABASE_PORT=3306
+    volumes:
+      - media_volume:/app/media/
+
+  django7:
+    build: .
+    ports:
+      - "8007:8000"  # Different port for each Django instance
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - ai_env=1
+      - DATABASE_ENGINE=django.db.backends.mysql
+      - DATABASE_NAME=vin  
+      - DATABASE_USER=saitreddy  
+      - DATABASE_PASSWORD=sai  
+      - DATABASE_HOST=db  
+      - DATABASE_PORT=3306
+    volumes:
+      - media_volume:/app/media/
+
+  django8:
+    build: .
+    ports:
+      - "8008:8000"  # Different port for each Django instance
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - ai_env=1
+      - DATABASE_ENGINE=django.db.backends.mysql
+      - DATABASE_NAME=vin  
+      - DATABASE_USER=saitreddy  
+      - DATABASE_PASSWORD=sai  
+      - DATABASE_HOST=db  
+      - DATABASE_PORT=3306
+    volumes:
+      - media_volume:/app/media/
+
+  django9:
+    build: .
+    ports:
+      - "8009:8000"  # Different port for each Django instance
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - ai_env=1
+      - DATABASE_ENGINE=django.db.backends.mysql
+      - DATABASE_NAME=vin  
+      - DATABASE_USER=saitreddy  
+      - DATABASE_PASSWORD=sai  
+      - DATABASE_HOST=db
+      - DATABASE_PORT=3306
+    volumes:
+      - media_volume:/app/media/
+
+  django10:
+    build: .
+    ports:
+      - "8010:8000"  # Different port for each Django instance
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - ai_env=1
+      - DATABASE_ENGINE=django.db.backends.mysql
+      - DATABASE_NAME=vin  
+      - DATABASE_USER=saitreddy  
+      - DATABASE_PASSWORD=sai  
+      - DATABASE_HOST=db
+      - DATABASE_PORT=3306
+    volumes:
+      - media_volume:/app/media/
+
+  # Repeat for other Django instances...
+
+  db:
+    image: mysql:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=sai
+      - MYSQL_DATABASE=vin
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - django1
+      - django2
+      - django3
+      - django4
+      - django5
+      - django6
+      - django7
+      - django8
+      - django9
+      - django10
+
+
+volumes:
+  media_volume:
