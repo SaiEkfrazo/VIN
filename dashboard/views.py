@@ -267,5 +267,10 @@ class ReportsGet(APIView):
 
     def get(self, request):
         queryset = self.get_queryset()
-        serializer = ReportsSerializer(queryset, many=True)
-        return Response(serializer.data)
+        serializer = ReportsSerializer(queryset, many=True, context={'request': request})
+        data = serializer.data
+        # Add base URL to image_b64 field
+        for report in data:
+            if 'image_b64' in report:
+                report['image_b64'] = request.build_absolute_uri(report['image_b64'])
+        return Response(data)
