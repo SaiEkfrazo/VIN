@@ -83,7 +83,7 @@ class ReportsAPIView(APIView):
         # Order queryset by recorded_date_time
         queryset = queryset.order_by('recorded_date_time')
 
-        return queryset.order_by('-id')
+        return queryset
 
     def post(self, request):
         data = request.data
@@ -234,3 +234,38 @@ class DefectImageView(APIView):
         except Reports.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
+
+
+class ReportsGet(APIView):
+    def get_queryset(self):
+        queryset = Reports.objects.all()
+
+        machine = self.request.query_params.get('machine')
+        defect = self.request.query_params.get('defect')
+        alert = self.request.query_params.get('alert')
+        department = self.request.query_params.get('department')
+        from_date = self.request.query_params.get('from_date')
+        to_date = self.request.query_params.get('to_date')
+
+        if machine:
+            queryset = queryset.filter(machine=machine)
+        if defect:
+            queryset = queryset.filter(defect=defect)
+        if alert:
+            queryset = queryset.filter(alert=alert)
+        if department:
+            queryset = queryset.filter(department=department)
+        if from_date and to_date:
+            from_date = make_aware(parse_datetime(from_date))
+            to_date = make_aware(parse_datetime(to_date))
+            queryset = queryset.filter(recorded_date_time__range=(from_date, to_date))
+
+        # Order queryset by recorded_date_time
+        
+
+        return queryset.order_by('-id')
+
+    def get(self, request):
+        queryset = self.get_queryset()
+        serializer = ReportsSerializer(queryset, many=True)
+        return Response(serializer.data)

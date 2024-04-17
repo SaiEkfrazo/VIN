@@ -14,5 +14,6 @@ urlpatterns = [
     path('department/',GetDepartmentList.as_view(),name='departmentlist'),
     path('alerts/',GetAlertList.as_view(),name='alerts'),
     path('aismart/<int:defect_id>/', DefectImageView.as_view(), name='smartview'),
-    path('defect/',GetDefectList.as_view(),name='Defects')
+    path('defect/',GetDefectList.as_view(),name='Defects'),
+    path('all_reports/',ReportsGet.as_view(),name='Reports all')
 ]
