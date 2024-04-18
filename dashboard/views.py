@@ -81,7 +81,7 @@ class ReportsAPIView(APIView):
             queryset = queryset.filter(recorded_date_time__range=(from_date, to_date))
 
         # Order queryset by recorded_date_time
-        queryset = queryset.order_by('-recorded_date_time')
+        queryset = queryset.order_by('recorded_date_time')
 
         return queryset
 
@@ -236,6 +236,9 @@ class DefectImageView(APIView):
 
 
 
+from django.utils.dateparse import parse_datetime
+from datetime import timedelta
+
 class ReportsGet(APIView):
     def get_queryset(self):
         queryset = Reports.objects.all()
@@ -256,14 +259,16 @@ class ReportsGet(APIView):
         if department:
             queryset = queryset.filter(department=department)
         if from_date and to_date:
-            from_date = make_aware(parse_datetime(from_date))
-            to_date = make_aware(parse_datetime(to_date))
+            # Parse datetime strings into datetime objects
+            from_date = parse_datetime(from_date)
+            to_date = parse_datetime(to_date) + timedelta(days=1)  # Add one day to include the end of the day
+            # Filter queryset by date range
             queryset = queryset.filter(recorded_date_time__range=(from_date, to_date))
-
+            print('queryset',queryset)
         # Order queryset by recorded_date_time
+        queryset = queryset.order_by('-id')
         
-
-        return queryset.order_by('-id')
+        return queryset
 
     def get(self, request):
         queryset = self.get_queryset()
