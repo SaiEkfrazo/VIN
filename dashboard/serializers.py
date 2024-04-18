@@ -43,12 +43,11 @@ class ReportsSerializer(serializers.ModelSerializer):
     machine_name = serializers.StringRelatedField(source='machine.name')
     department_name = serializers.StringRelatedField(source='department.name')
     defect_name = serializers.StringRelatedField(source='defect.name')
-
+    recorded_date_time = serializers.CharField()
 
     class Meta:
         model = Reports
         fields = ['id', 'alert', 'alert_name', 'defect','defect_name', 'machine', 'machine_name', 'department', 'department_name', 'recorded_date_time', 'image', 'image_b64']
-
 
 class MachineSerializer(serializers.ModelSerializer):
     class Meta:

@@ -81,7 +81,7 @@ class ReportsAPIView(APIView):
             queryset = queryset.filter(recorded_date_time__range=(from_date, to_date))
 
         # Order queryset by recorded_date_time
-        queryset = queryset.order_by('recorded_date_time')
+        queryset = queryset.order_by('-recorded_date_time')
 
         return queryset
 
