@@ -16,5 +16,6 @@ urlpatterns = [
     path('aismart/<int:defect_id>/', DefectImageView.as_view(), name='smartview'),
     path('defect/',GetDefectList.as_view(),name='Defects'),
     path('all_reports/',ReportsGet.as_view(),name='Reports all'),
-    path('machine_temprature/',MachineTemperaturesAPIView.as_view(),name='Machine Temperature')
+    path('machine_temprature/',MachineTemperaturesAPIView.as_view(),name='Machine Temperature'),
+    path('machine_temp_graph/',MachineTemperatureGraphView.as_view(),name='MachineGraph')
 ]
