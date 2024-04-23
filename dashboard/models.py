@@ -47,3 +47,11 @@ class Reports(models.Model):
 
     # def __str__(self):
     #     return self.machine if self.machine else self.defect
+
+class MachineTemperatures(models.Model):
+    machine=models.ForeignKey(Machines,on_delete=models.CASCADE,blank=False,null=False)
+    horizontal = models.CharField(max_length=100,blank=True,null=True)
+    teeth= models.BooleanField(blank=True,null=True,default=False)
+    coder = models.BooleanField(default=False,blank=True,null=True)
+    vertical = models.CharField(max_length=1000000,blank=True,null=True)
+    recorded_date_time = models.DateTimeField(blank=True,null=True)

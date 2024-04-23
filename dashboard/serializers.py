@@ -2,6 +2,9 @@ from rest_framework import serializers
 from .models import *
 from django.contrib.auth.hashers import make_password
 
+class NaiveDateTimeField(serializers.DateTimeField):
+    def to_representation(self, value):
+        return value.strftime('%Y-%m-%d %H:%M:%S')
 class SignUpSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
@@ -43,7 +46,7 @@ class ReportsSerializer(serializers.ModelSerializer):
     machine_name = serializers.StringRelatedField(source='machine.name')
     department_name = serializers.StringRelatedField(source='department.name')
     defect_name = serializers.StringRelatedField(source='defect.name')
-    recorded_date_time = serializers.CharField()
+    recorded_date_time = NaiveDateTimeField()
 
     class Meta:
         model = Reports
@@ -69,3 +72,12 @@ class DefectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Defects
         fields = '__all__'
+
+
+    
+class MachineTemperaturesSerializer(serializers.ModelSerializer):
+    recorded_date_time = NaiveDateTimeField()
+
+    class Meta:
+        model = MachineTemperatures
+        fields = ['id', 'horizontal', 'teeth', 'coder', 'vertical', 'recorded_date_time', 'machine']

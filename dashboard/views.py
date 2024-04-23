@@ -279,3 +279,26 @@ class ReportsGet(APIView):
             if 'image_b64' in report:
                 report['image_b64'] = request.build_absolute_uri(report['image_b64'])
         return Response(data)
+class MachineTemperaturesAPIView(APIView):
+    def get(self, request):
+        machine_id = request.query_params.get('machine_id')
+
+        if machine_id:
+            try:
+                # Get the latest record for the specified machine ID
+                latest_record = MachineTemperatures.objects.filter(machine_id=machine_id).latest('recorded_date_time')
+                serializer = MachineTemperaturesSerializer(latest_record)
+                return Response([serializer.data])
+            except MachineTemperatures.DoesNotExist:
+                return Response({"message": "Machine with the specified ID does not exist."}, status=status.HTTP_404_NOT_FOUND)
+            except Exception as e:
+                return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({"message": "Machine ID not provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request):
+        serializer = MachineTemperaturesSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
