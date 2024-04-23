@@ -302,3 +302,16 @@ class MachineTemperaturesAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class MachineTemperatureGraphView(APIView):
+    def get(self, request):
+        machine_id = request.query_params.get('machine_id')
+
+        if machine_id:
+            all_records = MachineTemperatures.objects.filter(machine_id=machine_id)
+        else:
+            all_records = MachineTemperatures.objects.all()
+
+        # Serialize the queryset
+        serializer = MachineTemperaturesSerializer(all_records, many=True)
+        return Response(serializer.data)
