@@ -281,20 +281,23 @@ class ReportsGet(APIView):
         return Response(data)
 class MachineTemperaturesAPIView(APIView):
     def get(self, request):
-        machine_id = request.query_params.get('machine_id')
+        try:
+            # Get all distinct machine IDs
+            machine_ids = MachineTemperatures.objects.values_list('machine_id', flat=True).distinct()
 
-        if machine_id:
-            try:
-                # Get the latest record for the specified machine ID
+            latest_records = []
+            for machine_id in machine_ids:
+                # Get the latest record for the current machine ID
                 latest_record = MachineTemperatures.objects.filter(machine_id=machine_id).latest('recorded_date_time')
                 serializer = MachineTemperaturesSerializer(latest_record)
-                return Response([serializer.data])
-            except MachineTemperatures.DoesNotExist:
-                return Response({"message": "Machine with the specified ID does not exist."}, status=status.HTTP_404_NOT_FOUND)
-            except Exception as e:
-                return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            return Response({"message": "Machine ID not provided."}, status=status.HTTP_400_BAD_REQUEST)
+                latest_records.append(serializer.data)
+
+            return Response(latest_records)
+        except MachineTemperatures.DoesNotExist:
+            return Response({"message": "No machine records found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
     def post(self, request):
         serializer = MachineTemperaturesSerializer(data=request.data)
