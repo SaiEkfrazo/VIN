@@ -53,5 +53,5 @@ class MachineTemperatures(models.Model):
     horizontal = models.CharField(max_length=100,blank=True,null=True)
     teeth= models.BooleanField(blank=True,null=True,default=False)
     coder = models.BooleanField(default=False,blank=True,null=True)
-    vertical = models.CharField(max_length=10000,blank=True,null=True)
-    recorded_date_time = models.DateTimeField(blank=True,null=True)
+    vertical = models.CharField(max_length=1000,blank=True,null=True)
+    recorded_date_time = models.CharField(max_length=200,blank=True,null=True)

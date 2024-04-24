@@ -77,7 +77,6 @@ class DefectSerializer(serializers.ModelSerializer):
     
 class MachineTemperaturesSerializer(serializers.ModelSerializer):
     # recorded_date_time = NaiveDateTimeField()
-
     class Meta:
         model = MachineTemperatures
         fields = ['id', 'horizontal', 'teeth', 'coder', 'vertical', 'recorded_date_time', 'machine']
