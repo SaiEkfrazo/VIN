@@ -41,7 +41,7 @@ class Reports(models.Model):
     defect = models.ForeignKey(Defects,on_delete=models.SET_NULL,blank=True,null=True)
     machine = models.ForeignKey(Machines,on_delete=models.SET_NULL,blank=True,null=True)
     department = models.ForeignKey(Department,on_delete=models.SET_NULL,blank=True,null=True)
-    recorded_date_time = models.DateTimeField(blank=True,null=True)
+    recorded_date_time = models.CharField(max_length=200,blank=True,null=True)
     image = models.ImageField(upload_to='results/',blank=True,null=True)
     image_b64 = models.ImageField(upload_to="results/",blank=True,null=True)
 

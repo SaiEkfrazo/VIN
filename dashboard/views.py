@@ -49,10 +49,11 @@ from .serializers import ReportsSerializer
 import uuid
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import make_aware
-
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.utils.timezone import make_aware
+from datetime import datetime
 
 class ReportsAPIView(APIView):
     serializer_class = ReportsSerializer
@@ -128,8 +129,6 @@ class ReportsAPIView(APIView):
             
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    
 
 
     def get(self, request):
