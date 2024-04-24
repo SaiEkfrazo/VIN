@@ -213,7 +213,7 @@ class DefectImageView(APIView):
 
                         # Extract machine name and recorded date-time
                         machine_name = report.machine.name if report.machine else None
-                        recorded_date_time = report.recorded_date_time.strftime("%Y-%m-%d %H:%M:%S") if report.recorded_date_time else None
+                        recorded_date_time = report.recorded_date_time if report.recorded_date_time else None
 
                         # Create a dictionary with image URL, machine name, and recorded date-time
                         image_data = {
