@@ -55,3 +55,20 @@ class MachineTemperatures(models.Model):
     coder = models.BooleanField(default=False,blank=True,null=True)
     vertical = models.CharField(max_length=1000,blank=True,null=True)
     recorded_date_time = models.CharField(max_length=200,blank=True,null=True)
+
+
+class MachineParameters(models.Model):
+    parameter = models.CharField(max_length=200,blank=False,null=False)
+    color_code = models.CharField(max_length=100,blank=False, null=False)
+
+    def __str__(self):
+        return self.parameter if self.parameter else None
+
+class MachineParametersGraph(models.Model):
+    machine_parameter = models.ForeignKey(MachineParameters,on_delete=models.SET_NULL,blank=True,null=True)
+    params_count = models.CharField(max_length=200,blank=True,null=True)
+    date_time = models.CharField(max_length=100,blank=True,null=True)
+
+    def __str__(self):
+        return self.params_count if self.params_count else None
+    

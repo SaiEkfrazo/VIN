@@ -17,5 +17,6 @@ urlpatterns = [
     path('defect/',GetDefectList.as_view(),name='Defects'),
     path('all_reports/',ReportsGet.as_view(),name='Reports all'),
     path('machine_temprature/',MachineTemperaturesAPIView.as_view(),name='Machine Temperature'),
-    path('machine_temp_graph/',MachineTemperatureGraphView.as_view(),name='MachineGraph')
+    path('machine_temp_graph/',MachineTemperatureGraphView.as_view(),name='MachineGraph'),
+    path('params_graph/',MachineParametersGraphView.as_view(),name='machineparametersgraph')
 ]

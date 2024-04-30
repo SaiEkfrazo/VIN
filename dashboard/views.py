@@ -317,4 +317,6 @@ class MachineTemperatureGraphView(APIView):
         serializer = MachineTemperaturesSerializer(all_records, many=True)
         return Response(serializer.data)
 
-
+class MachineParametersGraphView(generics.ListCreateAPIView):
+    queryset = MachineParametersGraph.objects.all()
+    serializer_class = MachineParametersSerializer

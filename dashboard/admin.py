@@ -29,3 +29,5 @@ class ReportsAdmin(admin.ModelAdmin):
 
 admin.site.register(Reports, ReportsAdmin)
 
+admin.site.register(MachineParameters)
+admin.site.register(MachineParametersGraph)
