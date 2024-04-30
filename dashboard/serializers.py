@@ -80,3 +80,13 @@ class MachineTemperaturesSerializer(serializers.ModelSerializer):
     class Meta:
         model = MachineTemperatures
         fields = ['id', 'horizontal', 'teeth', 'coder', 'vertical', 'recorded_date_time', 'machine']
+
+
+class MachineParametersSerializer(serializers.ModelSerializer):
+    parameter = serializers.CharField(source='machine_parameter.parameter')
+    color_code = serializers.CharField(source='machine_parameter.color_code')
+
+    class Meta:
+        model = MachineParametersGraph
+        fields = ['id', 'params_count', 'date_time', 'parameter', 'color_code']
+

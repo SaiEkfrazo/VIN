@@ -317,6 +317,58 @@ class MachineTemperatureGraphView(APIView):
         serializer = MachineTemperaturesSerializer(all_records, many=True)
         return Response(serializer.data)
 
-class MachineParametersGraphView(generics.ListCreateAPIView):
-    queryset = MachineParametersGraph.objects.all()
-    serializer_class = MachineParametersSerializer
+from datetime import datetime
+
+class MachineParametersGraphView(APIView):
+    def get_date_only(self, date_time_str):
+        # Convert the date_time string to a datetime object
+        date_time = datetime.fromisoformat(date_time_str)
+        # Extract the date part from the datetime object
+        date_only = date_time.date()
+        # Convert the date part back to a string
+        date_only_str = date_only.isoformat()
+        return date_only_str
+
+    def get(self, request):
+        # Retrieve all MachineParametersGraph objects and serialize them
+        parameters_graph = MachineParametersGraph.objects.all()
+        data = []
+        for graph in parameters_graph:
+            data.append({
+                "id": graph.id,
+                'params_count': graph.params_count,
+                'date_time': graph.date_time,
+                'parameter': graph.machine_parameter.parameter,
+                'color_code': graph.machine_parameter.color_code
+            })
+        return Response(data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        # Extract relevant data from the request and create or update a MachineParametersGraph object
+        params_count = request.data.get('params_count')
+        date_time_str = request.data.get('date_time')
+        parameter_id = request.data.get('parameter')  # Assuming parameter_id is provided
+        try:
+            # Fetch the MachineParameters instance corresponding to the provided parameter_id
+            parameter = MachineParameters.objects.get(pk=parameter_id)
+            # Convert the given date_time to date only
+            date_only_str = self.get_date_only(date_time_str)
+            # Check if there is an existing record with the same date and parameter
+            existing_graph = MachineParametersGraph.objects.filter(date_time__startswith=date_only_str, machine_parameter=parameter).first()
+            if existing_graph:
+                # Update the existing record's params_count
+                existing_graph.params_count = params_count
+                existing_graph.save()
+                return Response({'message': 'MachineParametersGraph updated successfully'}, status=status.HTTP_200_OK)
+            else:
+                # Create a new MachineParametersGraph object
+                graph = MachineParametersGraph.objects.create(
+                    machine_parameter=parameter,
+                    params_count=params_count,
+                    date_time=date_time_str
+                )
+                return Response({'message': 'MachineParametersGraph created successfully'}, status=status.HTTP_201_CREATED)
+        except MachineParameters.DoesNotExist:
+            return Response({'error': 'MachineParameters not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
