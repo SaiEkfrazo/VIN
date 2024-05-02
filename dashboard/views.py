@@ -5,7 +5,7 @@ from .serializers import *
 from django.utils import timezone
 from django.shortcuts import render
 from rest_framework import generics
-
+from django.db.models import F
 class SignupView(APIView):
     def post(self, request, format=None):
         serializer = SignUpSerializer(data=request.data)
@@ -353,11 +353,11 @@ class MachineParametersGraphView(APIView):
             parameter = MachineParameters.objects.get(pk=parameter_id)
             # Convert the given date_time to date only
             date_only_str = self.get_date_only(date_time_str)
-            # Check if there is an existing record with the same date and parameter
+            # Retrieve the existing record with the same date and parameter
             existing_graph = MachineParametersGraph.objects.filter(date_time__startswith=date_only_str, machine_parameter=parameter).first()
             if existing_graph:
-                # Update the existing record's params_count
-                existing_graph.params_count = params_count
+                # Update the existing record's params_count by adding the new value to the existing value
+                existing_graph.params_count = F('params_count') + params_count
                 existing_graph.save()
                 return Response({'message': 'MachineParametersGraph updated successfully'}, status=status.HTTP_200_OK)
             else:
