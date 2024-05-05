@@ -86,6 +86,50 @@ class ReportsAPIView(APIView):
 
         return queryset
 
+    # def post(self, request):
+    #     data = request.data
+    #     if 'image_b64' in data:
+    #         image_data = data.pop('image_b64')
+    #         image_data = base64.b64decode(image_data)
+    #         unique_filename = str(uuid.uuid4()) + '.jpg'
+    #         data['image_b64'] = ContentFile(image_data, name=unique_filename)
+
+    #     serializer = ReportsSerializer(data=data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+            
+    #         # # Send email
+    #         # subject = 'New Report Submitted'
+    #         # recipient_email = 'saithimma@ekfrazo.in' 
+    #         # sender_email = 'saitreddy06@gmail.com' 
+            
+    #         # # Append base URL to the image link
+    #         # base_url = 'http://127.0.0.1:8000'  # Replace 'example.com' with your actual base URL
+    #         # image_link = base_url + serializer.data['image_b64']
+            
+    #         # # Render email template
+    #         # context = {
+    #         #     'alert_name': serializer.data['alert_name'],
+    #         #     'defect_name': serializer.data['defect_name'],
+    #         #     'department_name': serializer.data['department_name'],
+    #         #     'image_link': image_link,
+    #         #     'recorded_date_time': serializer.data['recorded_date_time'],
+    #         # }
+    #         # html_message = render_to_string('email_template.html', context)
+    #         # plain_message = strip_tags(html_message)  # Strip HTML tags for plain text version
+            
+    #         # # Send email
+    #         # send_mail(
+    #         #     subject,
+    #         #     plain_message,
+    #         #     sender_email,
+    #         #     [recipient_email],
+    #         #     html_message=html_message,
+    #         # )
+            
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def post(self, request):
         data = request.data
         if 'image_b64' in data:
@@ -97,40 +141,33 @@ class ReportsAPIView(APIView):
         serializer = ReportsSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
+
+            # Increment params_count in MachineParametersGraph for the recorded_date_time
+            recorded_date_time = serializer.data['recorded_date_time'][:10]  # Extract date from recorded_date_time
             
-            # # Send email
-            # subject = 'New Report Submitted'
-            # recipient_email = 'saithimma@ekfrazo.in' 
-            # sender_email = 'saitreddy06@gmail.com' 
-            
-            # # Append base URL to the image link
-            # base_url = 'http://127.0.0.1:8000'  # Replace 'example.com' with your actual base URL
-            # image_link = base_url + serializer.data['image_b64']
-            
-            # # Render email template
-            # context = {
-            #     'alert_name': serializer.data['alert_name'],
-            #     'defect_name': serializer.data['defect_name'],
-            #     'department_name': serializer.data['department_name'],
-            #     'image_link': image_link,
-            #     'recorded_date_time': serializer.data['recorded_date_time'],
-            # }
-            # html_message = render_to_string('email_template.html', context)
-            # plain_message = strip_tags(html_message)  # Strip HTML tags for plain text version
-            
-            # # Send email
-            # send_mail(
-            #     subject,
-            #     plain_message,
-            #     sender_email,
-            #     [recipient_email],
-            #     html_message=html_message,
-            # )
-            
+            # Get the MachineParameters object with name "Reject Counter"
+            machine_parameter = MachineParameters.objects.filter(parameter="Reject Counter").first()
+
+            if machine_parameter:
+                # Check if a record for the date already exists
+                machine_params_obj, created = MachineParametersGraph.objects.get_or_create(
+                    date_time=recorded_date_time,
+                    machine_parameter=machine_parameter,
+                )
+
+                # If the record already exists, increment params_count; otherwise, set it to 1
+                if not created:
+                    machine_params_obj.params_count = F('params_count') + 1
+                    machine_params_obj.save()
+                else:
+                    machine_params_obj.params_count = 1
+                    machine_params_obj.save()
+
+            # Your existing code ...
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
+    
     def get(self, request):
         queryset = self.get_queryset()
         serializer = ReportsSerializer(queryset, many=True, context={'request': request})
@@ -141,7 +178,25 @@ class ReportsAPIView(APIView):
                 item['image_b64'] = {item['image_b64']}  # Construct absolute URL with port
         return Response(serializer.data)
 
-    
+    # def get(self, request):
+    #     queryset = self.get_queryset()
+        
+    #     # Initialize result dictionary
+    #     results = {}
+
+    #     # Iterate over queryset to populate results dictionary
+    #     for report in queryset:
+    #         # Extract date from recorded date time
+    #         recorded_date = datetime.strptime(report.recorded_date_time[:10], '%Y-%m-%d').date()
+    #         recorded_date_str = recorded_date.strftime('%Y-%m-%d')  # Convert date to string
+    #         if recorded_date_str not in results:
+    #             results[recorded_date_str] = {}
+    #         defect_name = report.defect.name if report.defect else "No Defect"
+    #         # Increment defect count for the date
+    #         results[recorded_date_str][defect_name] = results[recorded_date_str].get(defect_name, 0) + 1
+
+    #     # Return response
+    #     return Response(results) 
 
 def reports(request):
     return render(request,'reports.html')

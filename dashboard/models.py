@@ -69,6 +69,6 @@ class MachineParametersGraph(models.Model):
     params_count = models.CharField(max_length=200,blank=True,null=True)
     date_time = models.CharField(max_length=100,blank=True,null=True)
 
-    def __str__(self):
-        return self.params_count if self.params_count else None
+    # def __str__(self):
+    #     return self.machine_parameter if self.machine_parameter else None
     
