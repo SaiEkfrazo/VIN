@@ -168,35 +168,35 @@ class ReportsAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    def get(self, request):
-        queryset = self.get_queryset()
-        serializer = ReportsSerializer(queryset, many=True, context={'request': request})
-        # Modify image_b64 field to include the correct absolute URL with port
-        # base_url = f"http://127.0.0.1:{settings.PORT}"  # Assuming PORT is set in your settings
-        for item in serializer.data:
-            if item['image_b64']:
-                item['image_b64'] = {item['image_b64']}  # Construct absolute URL with port
-        return Response(serializer.data)
-
     # def get(self, request):
     #     queryset = self.get_queryset()
+    #     serializer = ReportsSerializer(queryset, many=True, context={'request': request})
+    #     # Modify image_b64 field to include the correct absolute URL with port
+    #     # base_url = f"http://127.0.0.1:{settings.PORT}"  # Assuming PORT is set in your settings
+    #     for item in serializer.data:
+    #         if item['image_b64']:
+    #             item['image_b64'] = {item['image_b64']}  # Construct absolute URL with port
+    #     return Response(serializer.data)
+
+    def get(self, request):
+        queryset = self.get_queryset()
         
-    #     # Initialize result dictionary
-    #     results = {}
+        # Initialize result dictionary
+        results = {}
 
-    #     # Iterate over queryset to populate results dictionary
-    #     for report in queryset:
-    #         # Extract date from recorded date time
-    #         recorded_date = datetime.strptime(report.recorded_date_time[:10], '%Y-%m-%d').date()
-    #         recorded_date_str = recorded_date.strftime('%Y-%m-%d')  # Convert date to string
-    #         if recorded_date_str not in results:
-    #             results[recorded_date_str] = {}
-    #         defect_name = report.defect.name if report.defect else "No Defect"
-    #         # Increment defect count for the date
-    #         results[recorded_date_str][defect_name] = results[recorded_date_str].get(defect_name, 0) + 1
+        # Iterate over queryset to populate results dictionary
+        for report in queryset:
+            # Extract date from recorded date time
+            recorded_date = datetime.strptime(report.recorded_date_time[:10], '%Y-%m-%d').date()
+            recorded_date_str = recorded_date.strftime('%Y-%m-%d')  # Convert date to string
+            if recorded_date_str not in results:
+                results[recorded_date_str] = {}
+            defect_name = report.defect.name if report.defect else "No Defect"
+            # Increment defect count for the date
+            results[recorded_date_str][defect_name] = results[recorded_date_str].get(defect_name, 0) + 1
 
-    #     # Return response
-    #     return Response(results) 
+        # Return response
+        return Response(results) 
 
 def reports(request):
     return render(request,'reports.html')
