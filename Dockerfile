@@ -22,4 +22,6 @@ EXPOSE 8100
 
 # Define a command to start the Django application with gunicorn
 # CMD ["gunicorn", "--bind", "0.0.0.0:8000", "aivolved.wsgi:application"]     
-CMD [ "python" , "manage.py", "runserver","0.0.0.0.8100"]
+# CMD [ "python" , "manage.py", "runserver","0.0.0.0.8100"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8100"]
+
