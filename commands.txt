@@ -1,0 +1,2 @@
+docker build -t vin_v1 .
+docker run -p 8000:8000 vin_v1
