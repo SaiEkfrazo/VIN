@@ -18,9 +18,8 @@ RUN pip install --upgrade pip && \
     pip install gunicorn
 
 # Expose port 8000
-EXPOSE 8000
+EXPOSE 8100
 
 # Define a command to start the Django application with gunicorn
-# CMD ["gunicorn", "--bind", "0.0.0.0:8000", "aivolved.wsgi:application"]
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-
+# CMD ["gunicorn", "--bind", "0.0.0.0:8000", "aivolved.wsgi:application"]     
+CMD [ "python" , "manage.py", "runserver","0.0.0.0.8100"]
