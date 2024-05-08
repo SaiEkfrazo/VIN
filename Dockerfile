@@ -21,4 +21,6 @@ RUN pip install --upgrade pip && \
 EXPOSE 8000
 
 # Define a command to start the Django application with gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "aivolved.wsgi:application"]
+# CMD ["gunicorn", "--bind", "0.0.0.0:8000", "aivolved.wsgi:application"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
