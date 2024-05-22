@@ -77,9 +77,15 @@ class ReportsAPIView(APIView):
         if department:
             queryset = queryset.filter(department=department)
         if from_date and to_date:
+            # Convert string dates to datetime objects
             from_date = make_aware(parse_datetime(from_date))
             to_date = make_aware(parse_datetime(to_date))
-            queryset = queryset.filter(recorded_date_time__range=(from_date, to_date))
+            
+            # Filter based on the converted datetime objects
+            queryset = queryset.filter(
+                recorded_date_time__gte=from_date.strftime('%Y-%m-%d %H:%M:%S'),
+                recorded_date_time__lte=to_date.strftime('%Y-%m-%d %H:%M:%S')
+            )
 
         # Order queryset by recorded_date_time
         queryset = queryset.order_by('recorded_date_time')
@@ -186,17 +192,26 @@ class ReportsAPIView(APIView):
 
         # Iterate over queryset to populate results dictionary
         for report in queryset:
-            # Extract date from recorded date time
-            recorded_date = datetime.strptime(report.recorded_date_time[:10], '%Y-%m-%d').date()
-            recorded_date_str = recorded_date.strftime('%Y-%m-%d')  # Convert date to string
-            if recorded_date_str not in results:
-                results[recorded_date_str] = {}
-            defect_name = report.defect.name if report.defect else "No Defect"
-            # Increment defect count for the date
-            results[recorded_date_str][defect_name] = results[recorded_date_str].get(defect_name, 0) + 1
+            # Extract date from recorded date time string (assuming 'YYYY-MM-DD' format)
+            try:
+                recorded_date_str = report.recorded_date_time[:10]
+                recorded_date = datetime.strptime(recorded_date_str, '%Y-%m-%d').date()
+                recorded_date_str = recorded_date.strftime('%Y-%m-%d')  # Convert date to string
+
+                if recorded_date_str not in results:
+                    results[recorded_date_str] = {}
+
+                defect_name = report.defect.name if report.defect else "No Defect"
+                # Increment defect count for the date
+                results[recorded_date_str][defect_name] = results[recorded_date_str].get(defect_name, 0) + 1
+
+            except (ValueError, TypeError) as e:
+                # Handle parsing errors gracefully
+                print(f"Error parsing date: {e}")
+                continue
 
         # Return response
-        return Response(results) 
+        return Response(results)
 
 def reports(request):
     return render(request,'reports.html')
@@ -427,3 +442,5 @@ class MachineParametersGraphView(APIView):
             return Response({'error': 'MachineParameters not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
