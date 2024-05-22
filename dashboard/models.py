@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractUser
 
 
 class CustomUser(AbstractUser):
+    class Meta:
+        db_table = 'CustomUser'
     first_name = models.CharField(max_length=100,blank=False,null=False)
     last_name = models.CharField(max_length=100,blank=False,null=False)
     password = models.CharField(max_length=100,blank=False,null=False)
@@ -13,18 +15,24 @@ class CustomUser(AbstractUser):
         return self.username if self.username else self.first_name
     
 class Machines(models.Model):
+    class Meta:
+        db_table = 'Machines'
     name = models.CharField(max_length=100,blank=False,null=False)
 
     def __str__(self):
         return self.name if self.name else ""
     
 class Defects(models.Model):
+    class Meta:
+        db_table = 'Defects'
     name = models.CharField(max_length=100,blank=False,null=False)
     color_code = models.CharField(max_length=100,blank=False,null=False)
     def __str__(self):
         return self.name if self.name else ""
     
 class Alerts(models.Model):
+    class Meta:
+        db_table = 'Alerts'
     name = models.CharField(max_length=100,blank=False,null=False)
 
     def __str__(self):
@@ -37,6 +45,8 @@ class Department(models.Model):
         return self.name if self.name else ""
     
 class Reports(models.Model):
+    class Meta:
+        db_table = 'Reports'
     alert = models.ForeignKey(Alerts,on_delete=models.SET_NULL,blank=True,null=True)
     defect = models.ForeignKey(Defects,on_delete=models.SET_NULL,blank=True,null=True)
     machine = models.ForeignKey(Machines,on_delete=models.SET_NULL,blank=True,null=True)
@@ -49,6 +59,8 @@ class Reports(models.Model):
     #     return self.machine if self.machine else self.defect
 
 class MachineTemperatures(models.Model):
+    class Meta:
+        db_table = 'MachineTemperatures'
     machine=models.ForeignKey(Machines,on_delete=models.CASCADE,blank=False,null=False)
     horizontal = models.CharField(max_length=100,blank=True,null=True)
     teeth= models.BooleanField(blank=True,null=True,default=False)
@@ -58,6 +70,8 @@ class MachineTemperatures(models.Model):
 
 
 class MachineParameters(models.Model):
+    class Meta:
+        db_table = 'MachineParameters'
     parameter = models.CharField(max_length=200,blank=False,null=False)
     color_code = models.CharField(max_length=100,blank=False, null=False)
 
@@ -65,6 +79,8 @@ class MachineParameters(models.Model):
         return self.parameter if self.parameter else None
 
 class MachineParametersGraph(models.Model):
+    class Meta:
+        db_table = 'MachineParametersGraph'
     machine_parameter = models.ForeignKey(MachineParameters,on_delete=models.SET_NULL,blank=True,null=True)
     params_count = models.CharField(max_length=200,blank=True,null=True)
     date_time = models.CharField(max_length=100,blank=True,null=True)
