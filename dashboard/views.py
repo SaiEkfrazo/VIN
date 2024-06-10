@@ -58,6 +58,8 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.utils.timezone import make_aware
 from datetime import datetime
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 class ReportsAPIView(APIView):
     serializer_class = ReportsSerializer
@@ -146,10 +148,9 @@ class ReportsAPIView(APIView):
         if serializer.is_valid():
             serializer.save()
 
-            # Increment params_count in MachineParametersGraph for the recorded_date_time
-            recorded_date_time = serializer.data['recorded_date_time'][:10]  # Extract date from recorded_date_time
+            # Increment params_count in MachineParametersGraph
+            recorded_date_time = serializer.data['recorded_date_time'][:10]
 
-            # Get the MachineParameters object with name "Reject Counter"
             machine_parameter = MachineParameters.objects.filter(parameter="Reject Counter").first()
 
             if machine_parameter:
@@ -164,36 +165,29 @@ class ReportsAPIView(APIView):
                     machine_params_obj.params_count = 1
                     machine_params_obj.save()
 
-            # Check if the same defect occurred three times consecutively
             current_defect = serializer.instance.defect
             last_three_reports = Reports.objects.order_by('-id')[:3]
 
-            # Debugging output to check last three reports
-            print('Last three reports:', last_three_reports)
-
-            # Ensure there are at least three reports to compare
             if last_three_reports.count() == 3:
-                # Check if the defects in the last three reports are the same
                 defects = [report.defect for report in last_three_reports]
                 defects_match = all(defect == current_defect for defect in defects)
 
-                # Debugging output to check defect match status
-                print('Defects:', defects)
-                print('Defects match:', defects_match)
-
                 if defects_match:
-                    # # Check if a notification already exists for this defect
-                    # existing_notification = DefectNotification.objects.filter(
-                    #     defect=current_defect,
-                    #     notification_text=f"Defect '{current_defect.name}' has occurred three times consecutively."
-                    # ).exists()
-
-                    
-                     # Create a DefectNotification
                     DefectNotification.objects.create(
-                         defect=current_defect,
+                        defect=current_defect,
                         notification_text=f"Defect '{current_defect.name}' has occurred three times consecutively."
                     )
+
+                    # Send the notification via WebSockets
+                    channel_layer = get_channel_layer()
+                    async_to_sync(channel_layer.group_send)(
+                        'notifications',
+                        {
+                            'type': 'send_notification',
+                            'notification': f"Defect '{current_defect.name}' has occurred three times consecutively."
+                        }
+                    )
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     

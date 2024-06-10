@@ -36,6 +36,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
     'dashboard',
     'rest_framework',
     'corsheaders',
+    
 ]
 
 MIDDLEWARE = [
@@ -76,6 +78,8 @@ TEMPLATES = [
     },
 ]
 
+ASGI_APPLICATION = 'aivolved.asgi.application'  # Add this line
+
 WSGI_APPLICATION = 'aivolved.wsgi.application'
 
 AUTH_USER_MODEL = 'dashboard.CustomUser'
@@ -83,12 +87,19 @@ AUTH_USER_MODEL = 'dashboard.CustomUser'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+# Channel layers configuration (using in-memory channel layer for development)
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 # DATABASES = {
 #        'default':
@@ -103,17 +114,17 @@ AUTH_USER_MODEL = 'dashboard.CustomUser'
 #    }
 
 
-DATABASES = {
-        'default': 
-            {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'VIN',
-            'USER': 'root',    
-            'PASSWORD': 'AIVolved',    
-            'HOST': '159.65.157.118',    
-            'PORT': '3306',   
-            }
-    }
+# DATABASES = {
+#         'default': 
+#             {
+#             'ENGINE': 'django.db.backends.mysql',
+#             'NAME': 'VIN',
+#             'USER': 'root',    
+#             'PASSWORD': 'AIVolved',    
+#             'HOST': '159.65.157.118',    
+#             'PORT': '3306',   
+#             }
+#     }
 
 
 # Password validation
@@ -147,11 +158,11 @@ USE_I18N = True
 USE_TZ = True
 
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = '/app/media'
-
 # MEDIA_URL = '/media/'
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# MEDIA_ROOT = '/app/media'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 PORT = '8000'
 # Static files (CSS, JavaScript, Images)
