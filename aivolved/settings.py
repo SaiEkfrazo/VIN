@@ -103,6 +103,19 @@ DATABASES = {
 #    }
 
 
+# DATABASES = {
+#         'default': 
+#             {
+#             'ENGINE': 'django.db.backends.mysql',
+#             'NAME': 'VIN',
+#             'USER': 'root',    
+#             'PASSWORD': 'AIVolved',    
+#             'HOST': '159.65.157.118',    
+#             'PORT': '3306',   
+#             }
+#     }
+
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -134,11 +147,11 @@ USE_I18N = True
 USE_TZ = True
 
 
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = '/app/media'
-
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = '/app/media'
+
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 PORT = '8000'
 # Static files (CSS, JavaScript, Images)

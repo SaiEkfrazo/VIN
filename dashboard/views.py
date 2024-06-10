@@ -6,6 +6,10 @@ from django.utils import timezone
 from django.shortcuts import render
 from rest_framework import generics
 from django.db.models import F
+from django.utils.dateparse import parse_datetime
+from datetime import timedelta
+
+
 class SignupView(APIView):
     def post(self, request, format=None):
         serializer = SignUpSerializer(data=request.data)
@@ -103,36 +107,30 @@ class ReportsAPIView(APIView):
     #     serializer = ReportsSerializer(data=data)
     #     if serializer.is_valid():
     #         serializer.save()
+
+    #         # Increment params_count in MachineParametersGraph for the recorded_date_time
+    #         recorded_date_time = serializer.data['recorded_date_time'][:10]  # Extract date from recorded_date_time
             
-    #         # # Send email
-    #         # subject = 'New Report Submitted'
-    #         # recipient_email = 'saithimma@ekfrazo.in' 
-    #         # sender_email = 'saitreddy06@gmail.com' 
-            
-    #         # # Append base URL to the image link
-    #         # base_url = 'http://127.0.0.1:8000'  # Replace 'example.com' with your actual base URL
-    #         # image_link = base_url + serializer.data['image_b64']
-            
-    #         # # Render email template
-    #         # context = {
-    #         #     'alert_name': serializer.data['alert_name'],
-    #         #     'defect_name': serializer.data['defect_name'],
-    #         #     'department_name': serializer.data['department_name'],
-    #         #     'image_link': image_link,
-    #         #     'recorded_date_time': serializer.data['recorded_date_time'],
-    #         # }
-    #         # html_message = render_to_string('email_template.html', context)
-    #         # plain_message = strip_tags(html_message)  # Strip HTML tags for plain text version
-            
-    #         # # Send email
-    #         # send_mail(
-    #         #     subject,
-    #         #     plain_message,
-    #         #     sender_email,
-    #         #     [recipient_email],
-    #         #     html_message=html_message,
-    #         # )
-            
+    #         # Get the MachineParameters object with name "Reject Counter"
+    #         machine_parameter = MachineParameters.objects.filter(parameter="Reject Counter").first()
+
+    #         if machine_parameter:
+    #             # Check if a record for the date already exists
+    #             machine_params_obj, created = MachineParametersGraph.objects.get_or_create(
+    #                 date_time=recorded_date_time,
+    #                 machine_parameter=machine_parameter,
+    #             )
+
+    #             # If the record already exists, increment params_count; otherwise, set it to 1
+    #             if not created:
+    #                 machine_params_obj.params_count = F('params_count') + 1
+    #                 machine_params_obj.save()
+    #             else:
+    #                 machine_params_obj.params_count = 1
+    #                 machine_params_obj.save()
+
+    #         # Your existing code ...
+
     #         return Response(serializer.data, status=status.HTTP_201_CREATED)
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -150,18 +148,15 @@ class ReportsAPIView(APIView):
 
             # Increment params_count in MachineParametersGraph for the recorded_date_time
             recorded_date_time = serializer.data['recorded_date_time'][:10]  # Extract date from recorded_date_time
-            
+
             # Get the MachineParameters object with name "Reject Counter"
             machine_parameter = MachineParameters.objects.filter(parameter="Reject Counter").first()
 
             if machine_parameter:
-                # Check if a record for the date already exists
                 machine_params_obj, created = MachineParametersGraph.objects.get_or_create(
                     date_time=recorded_date_time,
                     machine_parameter=machine_parameter,
                 )
-
-                # If the record already exists, increment params_count; otherwise, set it to 1
                 if not created:
                     machine_params_obj.params_count = F('params_count') + 1
                     machine_params_obj.save()
@@ -169,8 +164,36 @@ class ReportsAPIView(APIView):
                     machine_params_obj.params_count = 1
                     machine_params_obj.save()
 
-            # Your existing code ...
+            # Check if the same defect occurred three times consecutively
+            current_defect = serializer.instance.defect
+            last_three_reports = Reports.objects.order_by('-id')[:3]
 
+            # Debugging output to check last three reports
+            print('Last three reports:', last_three_reports)
+
+            # Ensure there are at least three reports to compare
+            if last_three_reports.count() == 3:
+                # Check if the defects in the last three reports are the same
+                defects = [report.defect for report in last_three_reports]
+                defects_match = all(defect == current_defect for defect in defects)
+
+                # Debugging output to check defect match status
+                print('Defects:', defects)
+                print('Defects match:', defects_match)
+
+                if defects_match:
+                    # # Check if a notification already exists for this defect
+                    # existing_notification = DefectNotification.objects.filter(
+                    #     defect=current_defect,
+                    #     notification_text=f"Defect '{current_defect.name}' has occurred three times consecutively."
+                    # ).exists()
+
+                    
+                     # Create a DefectNotification
+                    DefectNotification.objects.create(
+                         defect=current_defect,
+                        notification_text=f"Defect '{current_defect.name}' has occurred three times consecutively."
+                    )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -192,23 +215,28 @@ class ReportsAPIView(APIView):
 
         # Iterate over queryset to populate results dictionary
         for report in queryset:
-            # Extract date from recorded date time string (assuming 'YYYY-MM-DD' format)
-            try:
-                recorded_date_str = report.recorded_date_time[:10]
-                recorded_date = datetime.strptime(recorded_date_str, '%Y-%m-%d').date()
-                recorded_date_str = recorded_date.strftime('%Y-%m-%d')  # Convert date to string
+            # Handle recorded_date_time being either a string or a datetime object
+            recorded_date_time = report.recorded_date_time
+            if isinstance(recorded_date_time, str):
+                # Extract date from recorded date time string (assuming 'YYYY-MM-DD' format)
+                recorded_date_str = recorded_date_time[:10]
+                try:
+                    recorded_date = datetime.strptime(recorded_date_str, '%Y-%m-%d').date()
+                except ValueError:
+                    continue  # Skip this report if date parsing fails
+            elif isinstance(recorded_date_time, datetime):
+                recorded_date = recorded_date_time.date()
+            else:
+                continue  # Skip this report if recorded_date_time is neither str nor datetime
 
-                if recorded_date_str not in results:
-                    results[recorded_date_str] = {}
+            recorded_date_str = recorded_date.strftime('%Y-%m-%d')  # Convert date to string
 
-                defect_name = report.defect.name if report.defect else "No Defect"
-                # Increment defect count for the date
-                results[recorded_date_str][defect_name] = results[recorded_date_str].get(defect_name, 0) + 1
+            if recorded_date_str not in results:
+                results[recorded_date_str] = {}
 
-            except (ValueError, TypeError) as e:
-                # Handle parsing errors gracefully
-                print(f"Error parsing date: {e}")
-                continue
+            defect_name = report.defect.name if report.defect else "No Defect"
+            # Increment defect count for the date
+            results[recorded_date_str][defect_name] = results[recorded_date_str].get(defect_name, 0) + 1
 
         # Return response
         return Response(results)
@@ -305,8 +333,6 @@ class DefectImageView(APIView):
 
 
 
-from django.utils.dateparse import parse_datetime
-from datetime import timedelta
 
 class ReportsGet(APIView):
     def get_queryset(self):
@@ -442,5 +468,3 @@ class MachineParametersGraphView(APIView):
             return Response({'error': 'MachineParameters not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-

@@ -62,7 +62,7 @@ services:
       - ai_env=1
       - DATABASE_ENGINE=django.db.backends.mysql
       - DATABASE_NAME=vin  
-      - DATABASE_USER=saitreddy  
+      - DATABASE_USER=saitreddy
       - DATABASE_PASSWORD=sai  
       - DATABASE_HOST=db
       - DATABASE_PORT=3306
