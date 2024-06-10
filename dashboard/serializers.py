@@ -90,3 +90,7 @@ class MachineParametersSerializer(serializers.ModelSerializer):
         model = MachineParametersGraph
         fields = ['id', 'params_count', 'date_time', 'parameter', 'color_code']
 
+class DefectNotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DefectNotification
+        fields = '__all__'
