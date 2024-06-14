@@ -3,11 +3,33 @@ from django.contrib import admin
 # Register your models here.
 from .models import *
 
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
+
 admin.site.register(CustomUser)
-admin.site.register(Machines)
-admin.site.register(Defects)
-admin.site.register(Alerts)
-admin.site.register(Department)
+
+@admin.register(Machines)
+class MachinesAdmin(ImportExportModelAdmin):
+    list_display = ('id', 'name')
+    search_fields = ('name',)
+
+@admin.register(Defects)
+class DefectsAdmin(ImportExportModelAdmin):
+    list_display = ('id', 'name', 'color_code', 'consecutive_count', 'last_occurrence_time')
+    search_fields = ('name', 'color_code')
+
+@admin.register(Alerts)
+class AlertsAdmin(ImportExportModelAdmin):
+    list_display = ('id', 'name')
+    search_fields = ('name',)
+
+@admin.register(Department)
+class DepartmentAdmin(ImportExportModelAdmin):
+    list_display = ('id', 'name')
+    search_fields = ('name',)
+
+
+
 
 
 from django.contrib import admin
@@ -29,5 +51,10 @@ class ReportsAdmin(admin.ModelAdmin):
 
 admin.site.register(Reports, ReportsAdmin)
 
-admin.site.register(MachineParameters)
+
+@admin.register(MachineParameters)
+class DepartmentAdmin(ImportExportModelAdmin):
+    list_display = ('id','parameter', 'color_code')
+    search_fields = ('parameter')
+
 admin.site.register(MachineParametersGraph)

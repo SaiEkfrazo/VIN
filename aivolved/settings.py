@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'dashboard',
     'rest_framework',
     'corsheaders',
+    'import_export'
     
 ]
 

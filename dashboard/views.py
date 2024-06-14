@@ -152,7 +152,7 @@ class ReportsAPIView(APIView):
             recorded_date_time = serializer.data['recorded_date_time'][:10]
 
             machine_parameter = MachineParameters.objects.filter(parameter="Reject Counter").first()
-
+            print('machine parameter',machine_parameter)
             if machine_parameter:
                 machine_params_obj, created = MachineParametersGraph.objects.get_or_create(
                     date_time=recorded_date_time,
