@@ -45,7 +45,7 @@ RUN pip install --upgrade pip && \
     pip install gunicorn daphne
 
 # Expose port 8000
-EXPOSE 8000
+EXPOSE 8005
 
 # Define a command to start the Django application with daphne
-CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "aivolved.asgi:application"]
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8005", "aivolved.asgi:application"]
