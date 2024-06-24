@@ -74,6 +74,23 @@ class ReportsAPIView(APIView):
         from_date = self.request.query_params.get('from_date')
         to_date = self.request.query_params.get('to_date')
 
+        # Calculate the default date range (last seven days)
+        today = datetime.today().date()
+        seven_days_ago = today - timedelta(days=7)
+
+        if from_date and to_date:
+            # Convert string dates to datetime objects
+            from_date = make_aware(parse_datetime(from_date))
+            to_date = make_aware(parse_datetime(to_date))
+
+            # Adjust to_date to the end of the day
+            to_date = to_date + timedelta(days=1) - timedelta(seconds=1)
+        else:
+            # Use the default date range
+            from_date = make_aware(datetime.combine(seven_days_ago, datetime.min.time()))
+            to_date = make_aware(datetime.combine(today, datetime.max.time()))
+
+        # Apply filters
         if machine:
             queryset = queryset.filter(machine=machine)
         if defect:
@@ -82,59 +99,17 @@ class ReportsAPIView(APIView):
             queryset = queryset.filter(alert=alert)
         if department:
             queryset = queryset.filter(department=department)
-        if from_date and to_date:
-            # Convert string dates to datetime objects
-            from_date = make_aware(parse_datetime(from_date))
-            to_date = make_aware(parse_datetime(to_date))
-            
-            # Filter based on the converted datetime objects
-            queryset = queryset.filter(
-                recorded_date_time__gte=from_date.strftime('%Y-%m-%d %H:%M:%S'),
-                recorded_date_time__lte=to_date.strftime('%Y-%m-%d %H:%M:%S')
-            )
+        
+        # Filter based on the date range
+        queryset = queryset.filter(
+            recorded_date_time__gte=from_date.strftime('%Y-%m-%d %H:%M:%S'),
+            recorded_date_time__lte=to_date.strftime('%Y-%m-%d %H:%M:%S')
+        )
 
         # Order queryset by recorded_date_time
         queryset = queryset.order_by('recorded_date_time')
 
         return queryset
-
-    # def post(self, request):
-    #     data = request.data
-    #     if 'image_b64' in data:
-    #         image_data = data.pop('image_b64')
-    #         image_data = base64.b64decode(image_data)
-    #         unique_filename = str(uuid.uuid4()) + '.jpg'
-    #         data['image_b64'] = ContentFile(image_data, name=unique_filename)
-
-    #     serializer = ReportsSerializer(data=data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-
-    #         # Increment params_count in MachineParametersGraph for the recorded_date_time
-    #         recorded_date_time = serializer.data['recorded_date_time'][:10]  # Extract date from recorded_date_time
-            
-    #         # Get the MachineParameters object with name "Reject Counter"
-    #         machine_parameter = MachineParameters.objects.filter(parameter="Reject Counter").first()
-
-    #         if machine_parameter:
-    #             # Check if a record for the date already exists
-    #             machine_params_obj, created = MachineParametersGraph.objects.get_or_create(
-    #                 date_time=recorded_date_time,
-    #                 machine_parameter=machine_parameter,
-    #             )
-
-    #             # If the record already exists, increment params_count; otherwise, set it to 1
-    #             if not created:
-    #                 machine_params_obj.params_count = F('params_count') + 1
-    #                 machine_params_obj.save()
-    #             else:
-    #                 machine_params_obj.params_count = 1
-    #                 machine_params_obj.save()
-
-    #         # Your existing code ...
-
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request):
         data = request.data
@@ -152,7 +127,6 @@ class ReportsAPIView(APIView):
             recorded_date_time = serializer.data['recorded_date_time'][:10]
 
             machine_parameter = MachineParameters.objects.filter(parameter="Reject Counter").first()
-            print('machine parameter',machine_parameter)
             if machine_parameter:
                 machine_params_obj, created = MachineParametersGraph.objects.get_or_create(
                     date_time=recorded_date_time,
@@ -407,7 +381,9 @@ class MachineTemperatureGraphView(APIView):
         serializer = MachineTemperaturesSerializer(all_records, many=True)
         return Response(serializer.data)
 
+
 from datetime import datetime
+from collections import defaultdict
 
 class MachineParametersGraphView(APIView):
     def get_date_only(self, date_time_str):
@@ -420,18 +396,38 @@ class MachineParametersGraphView(APIView):
         return date_only_str
 
     def get(self, request):
-        # Retrieve all MachineParametersGraph objects and serialize them
+        # Retrieve all MachineParametersGraph objects
         parameters_graph = MachineParametersGraph.objects.all()
-        data = []
+
+        # Aggregating counts per day
+        date_aggregates = defaultdict(lambda: {'defect_count': 0, 'total_production_count': 0})
+
         for graph in parameters_graph:
+            date_only_str = graph.date_time[:10]  # Extracting date part
+            if graph.machine_parameter.parameter == "Reject Counter":
+                date_aggregates[date_only_str]['defect_count'] += int(graph.params_count)
+            elif graph.machine_parameter.parameter in ["Program Counter", "Machine Counter"]:
+                date_aggregates[date_only_str]['total_production_count'] += int(graph.params_count)
+
+        data = []
+        for date_only_str, counts in date_aggregates.items():
+            defect_count = counts['defect_count']
+            total_production_count = counts['total_production_count']
+
+            if total_production_count > 0:
+                defect_percentage = (defect_count / total_production_count) * 100
+            else:
+                defect_percentage = 0
+
             data.append({
-                "id": graph.id,
-                'params_count': graph.params_count,
-                'date_time': graph.date_time,
-                'parameter': graph.machine_parameter.parameter,
-                'color_code': graph.machine_parameter.color_code
+                "date_time": date_only_str,
+                "defect_percentage": round(defect_percentage, 2)
             })
-        return Response(data, status=status.HTTP_200_OK)
+
+        # Order the data by date
+        data = sorted(data, key=lambda x: datetime.fromisoformat(x['date_time']))
+
+        return Response({"results": data}, status=status.HTTP_200_OK)
 
     def post(self, request):
         # Extract relevant data from the request and create or update a MachineParametersGraph object

@@ -55,6 +55,5 @@ admin.site.register(Reports, ReportsAdmin)
 @admin.register(MachineParameters)
 class DepartmentAdmin(ImportExportModelAdmin):
     list_display = ('id','parameter', 'color_code')
-    search_fields = ('parameter')
 
 admin.site.register(MachineParametersGraph)
