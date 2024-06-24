@@ -27,7 +27,7 @@ DEBUG = True
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-CSRF_TRUSTED_ORIGINS = ['http://localhost:4200','http://localhost:3000/','http://localhost:80/','http://localhost:80','http://localhost:3001/','http://localhost:8000']
+CSRF_TRUSTED_ORIGINS = ['http://localhost:4200','http://localhost:3000/','http://localhost:80/','http://localhost:80','http://localhost:3001/','http://localhost:8000','http://localhost:3010/']
 
 CORS_ORIGIN_ALLOW_ALL=True
 
@@ -88,12 +88,12 @@ AUTH_USER_MODEL = 'dashboard.CustomUser'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 # Channel layers configuration (using in-memory channel layer for development)
 CHANNEL_LAYERS = {
@@ -102,17 +102,17 @@ CHANNEL_LAYERS = {
     },
 }
 
-DATABASES = {
-       'default':
-           {
-           'ENGINE': 'django.db.backends.mysql',
-           'NAME': 'vin',
-           'USER': 'root',  
-           'PASSWORD': 'sai',  
-           'HOST': 'db',  
-           'PORT': '3306',    
-           }
-   }
+# DATABASES = {
+#        'default':
+#            {
+#            'ENGINE': 'django.db.backends.mysql',
+#            'NAME': 'vin',
+#            'USER': 'root',  
+#            'PASSWORD': 'sai',  
+#            'HOST': 'db',  
+#            'PORT': '3306',    
+#            }
+#    }
 
 
 # DATABASES = {
@@ -159,8 +159,8 @@ USE_I18N = True
 USE_TZ = True
 
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = '/app/media'
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = '/app/media'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

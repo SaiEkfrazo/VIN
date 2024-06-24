@@ -60,9 +60,10 @@ from django.utils.timezone import make_aware
 from datetime import datetime
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from django.utils.dateparse import parse_date
 
 class ReportsAPIView(APIView):
-    serializer_class = ReportsSerializer
+    serializer_class = ReportsSerializer  # Replace with your actual serializer class
 
     def get_queryset(self):
         queryset = Reports.objects.all()
@@ -74,21 +75,27 @@ class ReportsAPIView(APIView):
         from_date = self.request.query_params.get('from_date')
         to_date = self.request.query_params.get('to_date')
 
-        # Calculate the default date range (last seven days)
-        today = datetime.today().date()
+        today = datetime.today()
         seven_days_ago = today - timedelta(days=7)
 
-        if from_date and to_date:
-            # Convert string dates to datetime objects
-            from_date = make_aware(parse_datetime(from_date))
-            to_date = make_aware(parse_datetime(to_date))
-
-            # Adjust to_date to the end of the day
-            to_date = to_date + timedelta(days=1) - timedelta(seconds=1)
+        if from_date:
+            try:
+                from_date = parse_datetime(from_date)
+            except ValueError:
+                return Response({"message": "Invalid from_date format. Use YYYY-MM-DDTHH:MM:SS."}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            # Use the default date range
-            from_date = make_aware(datetime.combine(seven_days_ago, datetime.min.time()))
-            to_date = make_aware(datetime.combine(today, datetime.max.time()))
+            from_date = seven_days_ago
+
+        if to_date:
+            try:
+                to_date = parse_datetime(to_date)
+            except ValueError:
+                return Response({"message": "Invalid to_date format. Use YYYY-MM-DDTHH:MM:SS."}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            to_date = today
+
+        if from_date > to_date:
+            return Response({"message": "from_date cannot be after to_date."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Apply filters
         if machine:
@@ -99,17 +106,51 @@ class ReportsAPIView(APIView):
             queryset = queryset.filter(alert=alert)
         if department:
             queryset = queryset.filter(department=department)
-        
+
         # Filter based on the date range
-        queryset = queryset.filter(
-            recorded_date_time__gte=from_date.strftime('%Y-%m-%d %H:%M:%S'),
-            recorded_date_time__lte=to_date.strftime('%Y-%m-%d %H:%M:%S')
-        )
+        filtered_queryset = []
+        for report in queryset:
+            try:
+                report_datetime = parse_datetime(report.recorded_date_time)
+                if from_date <= report_datetime <= to_date:
+                    filtered_queryset.append(report)
+            except ValueError:
+                continue
 
         # Order queryset by recorded_date_time
-        queryset = queryset.order_by('recorded_date_time')
+        filtered_queryset.sort(key=lambda x: parse_datetime(x.recorded_date_time))
 
-        return queryset
+        return filtered_queryset
+
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.get_queryset()
+
+            # Initialize a defaultdict for response data
+            response_data = defaultdict(lambda: defaultdict(int))
+
+            # Iterate through the queryset
+            for record in queryset:
+                # Extract date from recorded_date_time
+                try:
+                    datetime_obj = parse_datetime(record.recorded_date_time)
+                    date = datetime_obj.date()
+                except ValueError:
+                    continue  # Skip records with invalid datetime format
+
+                # Get defect name (adjust this based on your model structure)
+                defect_name = record.defect.name  # Replace with your actual field path
+
+                # Count the defects
+                response_data[str(date)][defect_name] += 1
+
+            # Convert defaultdict to a regular dict before returning
+            response_data = {str(date): dict(defects) for date, defects in response_data.items()}
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"message": f"Failed to retrieve records: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request):
         data = request.data
@@ -127,6 +168,7 @@ class ReportsAPIView(APIView):
             recorded_date_time = serializer.data['recorded_date_time'][:10]
 
             machine_parameter = MachineParameters.objects.filter(parameter="Reject Counter").first()
+            print('machine parameter', machine_parameter)
             if machine_parameter:
                 machine_params_obj, created = MachineParametersGraph.objects.get_or_create(
                     date_time=recorded_date_time,
