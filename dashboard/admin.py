@@ -57,3 +57,5 @@ class DepartmentAdmin(ImportExportModelAdmin):
     list_display = ('id','parameter', 'color_code')
 
 admin.site.register(MachineParametersGraph)
+
+# some comment 
